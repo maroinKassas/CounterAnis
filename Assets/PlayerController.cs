@@ -2,21 +2,14 @@
 
 public class PlayerController : MonoBehaviour
 {
-    float mouseX;
-    float mouseY;
-    float rotateAmountX;
-    float rotateAmountY;
-    float mouseSensitivity = 5;
-    Vector3 rotatePlayer;
+    private const float SPEED = 4, SPRINT_SPEED = 2;
+    private const int JUMP = 10;
+    private const float GRAVITY = 10;
+    private bool isPlayerOnGround = true;
+    private Vector3 moveDirection = Vector3.zero;
 
-    float speed = 4;
-    float sprintSpeed = 2;
-    float gravity = 8;
-    bool isPlayerOnGround = true;
-    Vector3 moveDirection = Vector3.zero;
-
-    CharacterController controller;
-    Animator animator;
+    private CharacterController controller;
+    private Animator animator;
 
     // Start is called before the first frame update
     void Start()
@@ -28,31 +21,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RotateCamera();
         Movement();
         Attacking();
     }
 
-    void RotateCamera()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-
-        mouseX = Input.GetAxis("Mouse X");
-        mouseY = Input.GetAxis("Mouse Y");
-
-        rotateAmountX = mouseX * mouseSensitivity;
-        rotateAmountY = mouseY * mouseSensitivity;
-
-        rotatePlayer = this.transform.rotation.eulerAngles;
-
-        /*rotatePlayer.x -= rotateAmountY;
-        rotatePlayer.z = 0;*/
-        rotatePlayer.y += rotateAmountX;
-
-        this.transform.rotation = Quaternion.Euler(rotatePlayer);
-    }
-
-    void Movement()
+    private void Movement()
     {
         if (controller.isGrounded)
         {
@@ -61,13 +34,13 @@ public class PlayerController : MonoBehaviour
                 moveDirection = new Vector3(0, 0, 1);
                 if (Input.GetKey(KeyCode.Z) && Input.GetKey(KeyCode.LeftShift))
                 {
-                    moveDirection *= speed * sprintSpeed;
+                    moveDirection *= SPEED * SPRINT_SPEED;
                     animator.SetBool("walk", false);
                     animator.SetBool("run", true);
                 } 
                 else
                 {
-                    moveDirection *= speed;
+                    moveDirection *= SPEED;
                     animator.SetBool("walk", true);
                     animator.SetBool("run", false);
                 }
@@ -75,17 +48,17 @@ public class PlayerController : MonoBehaviour
             else if (Input.GetKey(KeyCode.S))
             {
                 moveDirection = new Vector3(0, 0, -1);
-                moveDirection *= speed;
+                moveDirection *= SPEED;
             }
             else if (Input.GetKey(KeyCode.D))
             {
                 moveDirection = new Vector3(1, 0, 0);
-                moveDirection *= speed;
+                moveDirection *= SPEED;
             }
             else if (Input.GetKey(KeyCode.Q))
             {
                 moveDirection = new Vector3(-1, 0, 0);
-                moveDirection *= speed;
+                moveDirection *= SPEED;
             }
             else
             {
@@ -99,7 +72,8 @@ public class PlayerController : MonoBehaviour
                 if (isPlayerOnGround)
                 {
                     isPlayerOnGround = false;
-                    moveDirection += new Vector3(0, 10, 0);
+                    moveDirection += new Vector3(0, 1, 0);
+                    moveDirection *= JUMP;
 
                     //Jump Animation
                     //animator.SetTrigger("jump");
@@ -119,17 +93,17 @@ public class PlayerController : MonoBehaviour
             moveDirection = transform.TransformDirection(moveDirection);
         }
 
-        moveDirection.y -= gravity * Time.deltaTime;
+        moveDirection.y -= GRAVITY * Time.deltaTime;
         controller.Move(moveDirection * Time.deltaTime);
     }
 
-    void StopMovementAnimation()
+    private void StopMovementAnimation()
     {
         animator.SetBool("walk", false);
         animator.SetBool("run", false);
     }
 
-    void Attacking()
+    private void Attacking()
     {
         if (Input.GetMouseButton(0))
         {
