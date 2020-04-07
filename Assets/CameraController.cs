@@ -2,7 +2,7 @@
 
 public class CameraController : MonoBehaviour
 {
-    private const float ANGLE_MIN = -10.0f, ANGLE_MAX = 5.0f;
+    private const float ANGLE_MIN = -15.0f, ANGLE_MAX = 5.0f;
     private const float POSITION_CAM_X = 0, POSITION_CAM_Y = 2f, POSITION_CAM_Z = -4f;
     private const float MOUSE_SENSITIVITY = 5;
     private float mouseX, mouseY;

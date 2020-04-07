@@ -3,7 +3,7 @@
 public class PlayerController : MonoBehaviour
 {
     private const float SPEED = 4, SPRINT_SPEED = 2;
-    private const int JUMP = 10;
+    private const int JUMP = 5;
     private const float GRAVITY = 10;
     private bool isPlayerOnGround = true;
     private Vector3 moveDirection = Vector3.zero;
@@ -21,12 +21,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Movement();
-        Attacking();
-    }
-
-    private void Movement()
-    {
         if (controller.isGrounded)
         {
             if (Input.GetKey(KeyCode.Z))
@@ -37,7 +31,7 @@ public class PlayerController : MonoBehaviour
                     moveDirection *= SPEED * SPRINT_SPEED;
                     animator.SetBool("walk", false);
                     animator.SetBool("run", true);
-                } 
+                }
                 else
                 {
                     moveDirection *= SPEED;
@@ -62,7 +56,8 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                StopMovementAnimation();
+                animator.SetBool("walk", false);
+                animator.SetBool("run", false);
                 moveDirection = Vector3.zero;
             }
 
@@ -74,14 +69,6 @@ public class PlayerController : MonoBehaviour
                     isPlayerOnGround = false;
                     moveDirection += new Vector3(0, 1, 0);
                     moveDirection *= JUMP;
-
-                    //Jump Animation
-                    //animator.SetTrigger("jump");
-
-                    //Stop Run Sound
-                    //AudioScript.runSoundStop();
-                    //Play jump Sound
-                    //AudioScript.jumpSoundPlay();
                 }
             }
 
@@ -95,23 +82,5 @@ public class PlayerController : MonoBehaviour
 
         moveDirection.y -= GRAVITY * Time.deltaTime;
         controller.Move(moveDirection * Time.deltaTime);
-    }
-
-    private void StopMovementAnimation()
-    {
-        animator.SetBool("walk", false);
-        animator.SetBool("run", false);
-    }
-
-    private void Attacking()
-    {
-        if (Input.GetMouseButton(0))
-        {
-            StopMovementAnimation();
-            animator.SetBool("attack", true);
-        } else
-        {
-            animator.SetBool("attack", false);
-        }
     }
 }
