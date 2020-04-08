@@ -3,7 +3,7 @@
 public class PlayerController : MonoBehaviour
 {
     private const float SPEED = 4, SPRINT_SPEED = 2;
-    private const int JUMP = 5;
+    private const int JUMP = 15;
     private const float GRAVITY = 10;
     private bool isPlayerOnGround = true;
     private Vector3 moveDirection = Vector3.zero;

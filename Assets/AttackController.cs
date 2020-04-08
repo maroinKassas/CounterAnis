@@ -1,12 +1,23 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AttackController : MonoBehaviour
 {
-    private const float SPEED = 40.0f;
-    private int angle = 45;
+    private const float COOLDOWN_ATTACK_TIME = 0.75f;
+    private const float COOLDOWN_CHARGED_ATTACK_TIME = 3.0f;
+    private const float SPEED = 100.0f;
+    private const float SPEED_ROTATION = 20.0f;
+
+    private float attackTime = 0f;
+    private float chargedAttackTime = 0f;
+
+    [SerializeField]
+    Text countDownAttackText, countDownChargedAttackText;
+
     private Animator animator;
     private GameObject prefab;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -17,31 +28,55 @@ public class AttackController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Mouse0))
+        DisplayCoolDown(attackTime, COOLDOWN_ATTACK_TIME, countDownAttackText);
+        DisplayCoolDown(chargedAttackTime, COOLDOWN_CHARGED_ATTACK_TIME, countDownChargedAttackText);
+        StartCoroutine(Attacking());
+    }
+
+    private void DisplayCoolDown(float time, float coolDown, Text text)
+    {
+        if (time <= 0)
         {
-            GameObject bullet = Instantiate(prefab) as GameObject;
-
-            angle *= -1;
-            bullet.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-            bullet.transform.position = transform.position + Camera.main.transform.forward * 2;
-            Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
-            bulletRigidbody.velocity = Camera.main.transform.forward * SPEED;
-
-            StartCoroutine(Die());
+            text.gameObject.SetActive(false);
         }
         else
         {
-            animator.SetBool("attack", false);
+            text.gameObject.SetActive(true);
+            text.text = time.ToString("0.0");
         }
     }
 
-    private IEnumerator Die()
+    private IEnumerator Attacking()
     {
-        // Play the animation for getting suck in
-        animator.SetBool("attack", true);
-        yield return new WaitForSeconds(2);
-        // Move this object somewhere off the screen
+        if (Input.GetKey(KeyCode.Mouse0) && attackTime <= 0)
+        {
+            animator.SetBool("attack", true);
+            attackTime = COOLDOWN_ATTACK_TIME;
 
+            yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+            animator.SetBool("attack", false);
+        }
+        else if (Input.GetKeyDown(KeyCode.Mouse1) && chargedAttackTime <= 0)
+        {
+            animator.SetBool("chargedAttack", true);
+            chargedAttackTime = COOLDOWN_CHARGED_ATTACK_TIME;
+
+            yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+            GameObject bullet = Instantiate(prefab) as GameObject;
+
+            bullet.transform.position = new Vector3(0, 1.25f, 0) + transform.position + Camera.main.transform.forward * 2;
+            Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
+            bulletRigidbody.velocity = Camera.main.transform.forward * SPEED;
+            bulletRigidbody.angularVelocity = new Vector3(0, Mathf.PI * SPEED_ROTATION, 0);
+
+            animator.SetBool("chargedAttack", false);
+        }
+        else
+        {
+            attackTime -= 1 * Time.deltaTime;
+            chargedAttackTime -= 1 * Time.deltaTime;
+        }
     }
 }
