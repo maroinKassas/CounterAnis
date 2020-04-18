@@ -4,8 +4,9 @@ using UnityEngine.UI;
 
 public class AttackController : MonoBehaviour
 {
+    private const float BULLET_POSITION_Y = 1.0f;
     private const float COOLDOWN_ATTACK_TIME = 0.75f;
-    private const float COOLDOWN_CHARGED_ATTACK_TIME = 3.0f;
+    private const float COOLDOWN_CHARGED_ATTACK_TIME = 0.1f;
     private const float SPEED = 100.0f;
     private const float SPEED_ROTATION = 20.0f;
 
@@ -22,7 +23,7 @@ public class AttackController : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        prefab = Resources.Load("bullet") as GameObject;
+        prefab = Resources.Load("Bullet") as GameObject;
     }
 
     // Update is called once per frame
@@ -66,10 +67,13 @@ public class AttackController : MonoBehaviour
 
             GameObject bullet = Instantiate(prefab) as GameObject;
 
-            bullet.transform.position = new Vector3(0, 1.25f, 0) + transform.position + Camera.main.transform.forward * 2;
+            bullet.transform.position = new Vector3(0, BULLET_POSITION_Y, 0) + transform.position + Camera.main.transform.forward;
             Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
             bulletRigidbody.velocity = Camera.main.transform.forward * SPEED;
             bulletRigidbody.angularVelocity = new Vector3(0, Mathf.PI * SPEED_ROTATION, 0);
+
+            PlayerStats playerStats = gameObject.GetComponent<PlayerStats>();
+            bullet.GetComponent<BulletStats>().SetDamage(playerStats.GetHealth());
 
             animator.SetBool("chargedAttack", false);
         }
